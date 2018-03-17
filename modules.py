@@ -347,6 +347,10 @@ rename_dict = {
             "low": {
                 "value": 1,
                 "label": "low"
+            },
+            "irrel": {
+                "value": np.nan,
+                "label": "irrel"
             }
         }
     },
