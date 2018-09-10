@@ -1,0 +1,75 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library("feather")
+library("lme4")
+library("lmerTest")
+library("ggplot2")
+library("sjPlot")
+require("MuMIn")
+library("xlsx")
+library("car")
+```
+
+```{r}
+df <-  read_feather("/Users/hun/Google Drive/HSE/PhD/PhD thesis/data/df_regr_instance_agg.feather")
+```
+```{r}
+df$represent_ethicity_meaning_value    = ifelse(df$represent_ethicity_meaning_value > 0.5, 1, 0)
+df$is_ethicity_aggressor_meaning_value = ifelse(df$is_ethicity_aggressor_meaning_value > 0.5, 1, 0)
+df$is_ethicity_dangerous_meaning_value = ifelse(df$is_ethicity_dangerous_meaning_value > 0.5, 1, 0)
+df$is_ethicity_superior_meaning_value  = ifelse(df$is_ethicity_superior_meaning_value > 1.5, 1, 0)
+```
+
+```{r}
+df$document.id = as.factor(df$document.id)
+df$represent_ethicity_meaning_value = as.factor(df$represent_ethicity_meaning_value)
+df$is_ethicity_aggressor_meaning_value = as.factor(df$is_ethicity_aggressor_meaning_value)
+df$is_ethicity_dangerous_meaning_value = as.factor(df$is_ethicity_dangerous_meaning_value)
+df$is_ethicity_superior_meaning_value = as.factor(df$is_ethicity_superior_meaning_value)
+df$opinion_about_ethnonym_recoded_value = as.numeric(df$opinion_about_ethnonym_recoded_value)
+df$eth_group_to_code = as.factor(df$eth_group_to_code)
+df$aggregated_groups = as.factor(df$aggregated_groups)
+df$auth_gender = as.factor(df$auth_gender)
+df$region = as.factor(df$region)
+```
+```{r}
+hist(df$opinion_about_ethnonym_recoded_value)
+```
+
+```{r}
+model_auth = lmer(opinion_about_ethnonym_recoded_value ~ 
+               represent_ethicity_meaning_value +
+               (1|eth_group_to_code) +
+               (1|region) +
+               (1|document.id),
+             data=df, REML = F)
+```
+
+```{r}
+r.squaredGLMM(model_auth)
+```
+```{r}
+summary(model_auth)
+```
+```{r}
+plot_model(model_auth,
+           type="re",
+           vline.color = "red",
+           sort.est = "sort.all",
+           title = "Случайные эффекты",
+           rm.terms = "document.id",
+           facet.grid = FALSE)
+```
+```{r}
+sjp.lmer(model_auth,
+          type = "re", remove.estimates="document.id", sort.est = "sort.all",
+          facet.grid = FALSE, p.kr=F)
+```
+```{r}
+
+```
+
